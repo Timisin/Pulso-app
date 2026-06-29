@@ -82,13 +82,19 @@
     margin-bottom: 28px;
     display:flex; align-items:center; justify-content:center;
     position:relative;
+    cursor:pointer;
+    transition: transform .15s ease;
   }
+  .brand:hover{ transform: scale(1.06); }
+  .brand:active{ transform: scale(0.94); }
   .brand::after{
     content:'';
     position:absolute; inset:4px;
     border-radius:8px;
     background: var(--surface);
+    transition: inset .15s ease;
   }
+  .brand.collapsed::after{ inset:7px; }
   .nav-item{
     width: 60px;
     height: 60px;
@@ -158,7 +164,12 @@
   .qa-btn:hover{ border-color: var(--accent, var(--amber)); color:var(--text); }
   .qa-btn svg{ width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
 
-  .grid-cards{ display:grid; grid-template-columns: repeat(4, 1fr); gap:18px; }
+  .grid-cards{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:18px;
+    overflow:hidden; max-height:0; opacity:0; margin-bottom:0;
+    transition: max-height .35s ease, opacity .25s ease, margin-bottom .35s ease;
+  }
+  .grid-cards.expanded{ max-height:1000px; opacity:1; margin-bottom:18px; }
   @media (max-width: 1100px){ .grid-cards{ grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 560px){ .grid-cards{ grid-template-columns: 1fr; } }
 
@@ -336,23 +347,33 @@
 
   /* ---------- HABITS ---------- */
   .habits-grid{ display:flex; flex-direction:column; gap:12px; }
-  .habit-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; display:flex; align-items:center; gap:16px; }
+  .habit-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 18px; display:flex; flex-wrap:wrap; align-items:center; gap:14px;
+  }
   .habit-emoji{ width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; background:var(--surface-2); flex-shrink:0; }
-  .habit-info{ flex:1; min-width:0; }
-  .habit-name{ font-weight:600; font-size:14.5px; margin-bottom:2px; }
+  .habit-info{ flex:1 1 160px; min-width:0; }
+  .habit-name{ font-weight:600; font-size:14.5px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .habit-streak{ font-size:12px; color:var(--text-faint); }
   .habit-streak b{ color:var(--amber); font-family:'JetBrains Mono'; }
-  .week-dots{ display:flex; gap:6px; flex-shrink:0; }
+  .week-dots{
+    display:flex; gap:5px; flex-shrink:1;
+    flex-basis:100%; justify-content:flex-start; order:3;
+  }
   .week-dot{
-    width:30px; height:30px; border-radius:9px; border:1.5px solid var(--line);
+    width:28px; height:28px; border-radius:8px; border:1.5px solid var(--line);
     display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--text-faint); font-weight:600;
-    cursor:pointer; transition:.15s;
+    cursor:pointer; transition:.15s; flex:1 1 0; max-width:34px;
   }
   .week-dot.on{ background:var(--amber); border-color:var(--amber); color:#1a1407; }
   .week-dot.today-ring{ box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--text-faint); }
-  .habit-del{ color:var(--text-faint); flex-shrink:0; }
+  .habit-del{ color:var(--text-faint); flex-shrink:0; order:2; margin-left:auto; }
   .habit-del:hover{ color:var(--rose); }
   .habit-del svg{ width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; }
+  @media (min-width: 540px){
+    .week-dots{ flex-basis:auto; order:2; justify-content:flex-end; }
+    .habit-del{ order:3; margin-left:0; }
+  }
 
   /* ---------- MODAL ---------- */
   .modal-backdrop{
@@ -404,6 +425,77 @@
     .nav-item span{ display:none; }
     .main{ padding:24px 18px 50px; }
   }
+  @media (max-width: 480px){
+    .main{ padding:18px 14px 50px; }
+    .topbar h1{ font-size:23px; }
+    .pulse-hero{ padding:20px 16px; gap:22px; }
+    .pulse-ring-wrap svg{ width:140px; height:140px; }
+    .grid-cards{ gap:12px; }
+    .stat-card{ padding:16px 14px 14px; }
+    .stat-card .value{ font-size:22px; }
+    .modal{ padding:20px 18px; border-radius:16px; }
+    .field-row{ flex-direction:column; gap:0; }
+    .money-stat .value{ font-size:21px; }
+    .quick-add-row{ gap:7px; }
+    .qa-btn{ padding:8px 11px; font-size:12.5px; }
+  }
+  @media (max-width: 360px){
+    .sidebar{ width:56px; }
+    .nav-item{ width:42px; height:42px; }
+    .nav-item svg{ width:17px; height:17px; }
+  }
+
+  /* ---------- AUTH SCREEN ---------- */
+  #auth-screen{
+    position:fixed; inset:0; background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    z-index:300; padding:20px;
+  }
+  #auth-screen.hidden{ display:none; }
+  .auth-card{
+    width:100%; max-width:380px;
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:34px 30px;
+  }
+  .auth-logo{
+    width:48px; height:48px; border-radius:13px; margin:0 auto 18px;
+    background: conic-gradient(from 220deg, var(--amber), var(--rose), var(--violet), var(--teal), var(--amber));
+    position:relative;
+  }
+  .auth-logo::after{ content:''; position:absolute; inset:5px; border-radius:9px; background:var(--surface); }
+  .auth-card h2{ font-family:'Space Grotesk'; font-size:21px; font-weight:600; text-align:center; margin-bottom:4px; }
+  .auth-card .auth-sub{ text-align:center; color:var(--text-faint); font-size:13px; margin-bottom:24px; }
+  .auth-field{ margin-bottom:14px; }
+  .auth-field label{ display:block; font-size:12px; color:var(--text-dim); margin-bottom:6px; font-weight:500; }
+  .auth-field input{
+    width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:11px 13px; font-size:14px;
+  }
+  .auth-field input:focus{ border-color:var(--amber); }
+  .auth-error{
+    background:var(--rose-dim); color:var(--rose); border-radius:9px; padding:10px 13px;
+    font-size:12.5px; margin-bottom:14px; display:none;
+  }
+  .auth-error.show{ display:block; }
+  .auth-submit{
+    width:100%; background:var(--amber); color:#1a1407; font-weight:600; font-size:14px;
+    padding:12px; border-radius:10px; margin-top:6px; transition:filter .15s;
+  }
+  .auth-submit:hover{ filter:brightness(1.08); }
+  .auth-submit:disabled{ opacity:.6; cursor:default; }
+  .auth-switch{ text-align:center; font-size:13px; color:var(--text-faint); margin-top:18px; }
+  .auth-switch a{ color:var(--amber); font-weight:500; cursor:pointer; }
+  .auth-forgot{ text-align:right; font-size:11.5px; color:var(--text-faint); margin-top:-6px; margin-bottom:14px; cursor:pointer; }
+  .auth-forgot:hover{ color:var(--text-dim); }
+  .auth-loading{ text-align:center; color:var(--text-faint); font-size:13px; }
+
+  /* user badge / logout in sidebar */
+  .user-badge{
+    width:36px; height:36px; border-radius:50%; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600;
+    color:var(--text-dim); margin-bottom:8px; cursor:pointer; flex-shrink:0;
+  }
+  .user-badge:hover{ background:var(--line); }
 
   /* ---------- SETTINGS / BACKUP ---------- */
   .settings-trigger{
@@ -476,12 +568,80 @@
   .install-banner .ib-dismiss svg{ width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; }
   @media (max-width:560px){ .install-banner .ib-sub{ display:none; } }
 </style>
+<script type="module">
+  // Firebase SDK (modular, v10) — loaded as ES module
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+    createUserWithEmailAndPassword, signOut, sendPasswordResetEmail,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // Configuración real del proyecto Firebase del usuario (pulso-app-ad392)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDkWfqEBNbXQ2DoL-VNmb9glPabGTfgp2A",
+    authDomain: "pulso-app-ad392.firebaseapp.com",
+    projectId: "pulso-app-ad392",
+    storageBucket: "pulso-app-ad392.firebasestorage.app",
+    messagingSenderId: "448834489425",
+    appId: "1:448834489425:web:5a14cdd90d5fbd2547bc70",
+    measurementId: "G-R4T20XPQM1"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseApp);
+  const db = getFirestore(firebaseApp);
+
+  // Expose what the rest of the (non-module) app script needs, via window
+  window.__firebase = {
+    auth, db,
+    onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    signOut, sendPasswordResetEmail, updateProfile,
+    doc, getDoc, setDoc, onSnapshot
+  };
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
 </head>
 <body>
 
-<div class="app">
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo"></div>
+    <h2 id="auth-title">Bienvenido a Pulso</h2>
+    <p class="auth-sub" id="auth-subtitle">Inicia sesión para ver tus datos</p>
+
+    <div class="auth-error" id="auth-error"></div>
+
+    <form id="auth-form" onsubmit="return false;">
+      <div class="auth-field" id="auth-name-field" style="display:none;">
+        <label>Tu nombre</label>
+        <input type="text" id="auth-name" placeholder="¿Cómo te llamas?" autocomplete="name">
+      </div>
+      <div class="auth-field">
+        <label>Correo electrónico</label>
+        <input type="email" id="auth-email" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Contraseña</label>
+        <input type="password" id="auth-password" placeholder="Mínimo 6 caracteres" autocomplete="current-password">
+      </div>
+      <div class="auth-forgot" id="auth-forgot-link" onclick="handlePasswordReset()">¿Olvidaste tu contraseña?</div>
+      <button class="auth-submit" id="auth-submit-btn" onclick="handleAuthSubmit()">Iniciar sesión</button>
+    </form>
+
+    <div class="auth-switch">
+      <span id="auth-switch-text">¿No tienes cuenta?</span>
+      <a id="auth-switch-link" onclick="toggleAuthMode()">Regístrate</a>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none;">
   <nav class="sidebar">
-    <div class="brand"></div>
+    <div class="brand" id="brand-toggle" onclick="toggleStatCards()" role="button" aria-label="Mostrar u ocultar resumen" tabindex="0"></div>
     <button class="nav-item active" data-view="dashboard" style="--accent-color:var(--amber)">
       <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span>Inicio</span>
@@ -502,6 +662,7 @@
       <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 10-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg>
       <span>Hábitos</span>
     </button>
+    <div class="user-badge" id="user-badge" onclick="openModal('modal-settings')" title="Tu cuenta">··</div>
     <button class="settings-trigger" onclick="openModal('modal-settings')" aria-label="Ajustes y respaldo">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
@@ -554,7 +715,7 @@
         </div>
       </div>
 
-      <div class="grid-cards">
+      <div class="grid-cards" id="grid-cards-section">
         <div class="stat-card" style="--card-accent:var(--teal); --card-accent-dim:var(--teal-dim)" onclick="switchView('agenda')">
           <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
           <div class="label">Tareas pendientes</div>
@@ -773,6 +934,17 @@
   <div class="modal">
     <h3>Ajustes y respaldo</h3>
 
+    <div class="settings-section">
+      <h4>Cuenta</h4>
+      <div class="settings-row">
+        <div>
+          <div class="srow-label" id="account-name-label">—</div>
+          <div class="srow-sub" id="account-email-label">—</div>
+        </div>
+        <button class="qa-btn" onclick="handleLogout()">Cerrar sesión</button>
+      </div>
+    </div>
+
     <div class="settings-section" id="settings-install-section" style="display:none;">
       <h4>Instalación</h4>
       <div class="settings-row">
@@ -800,6 +972,20 @@
         </div>
         <label class="qa-btn file-btn"><svg viewBox="0 0 24 24"><path d="M12 21V8m0 0l-4 4m4-4l4 4M5 3h14"/></svg> Importar
           <input type="file" accept="application/json" onchange="importData(event)">
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h4>Sonido</h4>
+      <div class="settings-row">
+        <div>
+          <div class="srow-label">Sonidos de interfaz</div>
+          <div class="srow-sub">Clicks sutiles al tocar botones y marcar acciones</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="sounds-toggle" checked onchange="toggleSounds()">
+          <span class="track"></span>
         </label>
       </div>
     </div>
@@ -843,39 +1029,69 @@
 
 <script>
 /* ============================================================
-   STORAGE (persistent via window.storage, with safe fallback)
-   ============================================================ */
-const SKEY = {
-  notes: 'pulso:notes',
-  tasks: 'pulso:tasks',
-  tx: 'pulso:transactions',
-  goals: 'pulso:goals',
-  habits: 'pulso:habits',
-  customCats: 'pulso:customCategories'
-};
-
+   FIREBASE-BACKED STORAGE + AUTH
+   ============================================================
+   Data now lives in Firestore under users/{uid}, one document
+   holding every collection (notes, tasks, tx, goals, habits,
+   customCats) plus small UI preferences. This replaces the old
+   window.storage (Claude-artifact-only) system so the app works
+   as an independent, hosted PWA with real accounts.
+*/
+let fb = null; // populated once the firebase module script fires 'firebase-ready'
+let currentUser = null;
 let DB = { notes: [], tasks: [], tx: [], goals: [], habits: [], customCats: {expense:[], income:[]} };
+let UIPREFS = { soundsEnabled: true, cardsExpanded: false, installDismissed: false };
 
-async function storageGet(key, fallback){
-  try{
-    const r = await window.storage.get(key, false);
-    return r ? JSON.parse(r.value) : fallback;
-  }catch(e){ return fallback; }
-}
-async function storageSet(key, value){
-  try{ await window.storage.set(key, JSON.stringify(value), false); }
-  catch(e){ console.error('storage set failed', key, e); }
+function userDocRef(){
+  return fb.doc(fb.db, 'users', currentUser.uid);
 }
 
 async function loadAll(){
-  DB.notes  = await storageGet(SKEY.notes, []);
-  DB.tasks  = await storageGet(SKEY.tasks, []);
-  DB.tx     = await storageGet(SKEY.tx, []);
-  DB.goals  = await storageGet(SKEY.goals, []);
-  DB.habits = await storageGet(SKEY.habits, []);
-  DB.customCats = await storageGet(SKEY.customCats, {expense:[], income:[]});
+  try{
+    const snap = await fb.getDoc(userDocRef());
+    if(snap.exists()){
+      const data = snap.data();
+      DB.notes = data.notes || [];
+      DB.tasks = data.tasks || [];
+      DB.tx = data.tx || [];
+      DB.goals = data.goals || [];
+      DB.habits = data.habits || [];
+      DB.customCats = data.customCats || {expense:[], income:[]};
+      UIPREFS = data.uiPrefs || UIPREFS;
+    }else{
+      // first login ever: create an empty document
+      await fb.setDoc(userDocRef(), { notes:[], tasks:[], tx:[], goals:[], habits:[], customCats:{expense:[],income:[]}, uiPrefs:UIPREFS });
+    }
+  }catch(e){
+    console.error('Failed to load data from Firestore', e);
+    showToast('No se pudieron cargar tus datos. Revisa tu conexión.');
+  }
 }
-function persist(which){ storageSet(SKEY[which], DB[which]); }
+
+// Persists one slice of DB (which = 'notes'|'tasks'|'tx'|'goals'|'habits'|'customCats') to Firestore.
+function persist(which){
+  if(!currentUser) return;
+  fb.setDoc(userDocRef(), { [which]: DB[which] }, { merge: true })
+    .catch(e => { console.error('persist failed', which, e); showToast('No se pudo guardar — revisa tu conexión'); });
+}
+// Persists a UI preference (soundsEnabled, cardsExpanded, installDismissed) without touching app data.
+function persistUIPref(key, value){
+  UIPREFS[key] = value;
+  if(!currentUser) return;
+  fb.setDoc(userDocRef(), { uiPrefs: UIPREFS }, { merge: true }).catch(()=>{});
+}
+// Legacy-name shims so older code calling storageGet/storageSet for one-off UI flags keeps working.
+async function storageGet(key, fallback){
+  if(key === 'pulso:soundsEnabled') return UIPREFS.soundsEnabled ?? fallback;
+  if(key === 'pulso:cardsExpanded') return UIPREFS.cardsExpanded ?? fallback;
+  if(key === 'pulso:installDismissed') return UIPREFS.installDismissed ?? fallback;
+  return fallback;
+}
+async function storageSet(key, value){
+  if(key === 'pulso:soundsEnabled') return persistUIPref('soundsEnabled', value);
+  if(key === 'pulso:cardsExpanded') return persistUIPref('cardsExpanded', value);
+  if(key === 'pulso:installDismissed') return persistUIPref('installDismissed', value);
+}
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function todayISO(){ const d=new Date(); return d.toISOString().slice(0,10); }
@@ -886,6 +1102,69 @@ function showToast(msg){
   t.classList.add('show');
   clearTimeout(window._toastTimer);
   window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ============================================================
+   SOUND EFFECTS (synthetic, no external audio files needed)
+   ============================================================ */
+let _audioCtx = null;
+let soundsEnabled = true;
+function getAudioCtx(){
+  if(!_audioCtx){
+    try{ _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  if(_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+function playTone(freq, duration, type, gainPeak){
+  if(!soundsEnabled) return;
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(gainPeak || 0.05, ctx.currentTime + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration);
+}
+function sndClick(){ playTone(720, 0.07, 'sine', 0.045); }
+function sndSuccess(){ playTone(660, 0.09, 'sine', 0.05); setTimeout(()=>playTone(880, 0.1, 'sine', 0.045), 70); }
+function sndDelete(){ playTone(280, 0.12, 'sine', 0.05); }
+function sndToggleOn(){ playTone(900, 0.08, 'triangle', 0.045); }
+function sndToggleOff(){ playTone(420, 0.08, 'triangle', 0.04); }
+function toggleSounds(){
+  soundsEnabled = document.getElementById('sounds-toggle').checked;
+  storageSet('pulso:soundsEnabled', soundsEnabled);
+  if(soundsEnabled) sndClick();
+}
+
+// Global delegated click sound: any element matching these selectors gets a soft click.
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('button, .nav-item, .chk, .cal-day, .chip, .week-dot, .swatch, .emoji-opt, .settings-trigger, .qa-btn, [role="button"]');
+  if(!el) return;
+  // more specific sounds for known actions take priority elsewhere; this is the default fallback
+  if(el.classList.contains('chk')) return; // handled by toggleTask/toggleHabitDay directly
+  if(el.classList.contains('week-dot')) return; // handled by toggleHabitDay directly
+  if(el.classList.contains('habit-del') || el.classList.contains('task-del') || el.classList.contains('tx-del') || el.classList.contains('note-del')) return; // handled directly
+  sndClick();
+}, true);
+
+/* ============================================================
+   DASHBOARD: TOGGLE STAT CARDS (click the logo, top-left)
+   ============================================================ */
+function toggleStatCards(){
+  const grid = document.getElementById('grid-cards-section');
+  const brand = document.getElementById('brand-toggle');
+  const expanded = grid.classList.toggle('expanded');
+  brand.classList.toggle('collapsed', !expanded);
+  expanded ? sndToggleOn() : sndToggleOff();
+  storageSet('pulso:cardsExpanded', expanded);
 }
 
 /* ============================================================
@@ -947,15 +1226,15 @@ function saveTask(){
   persist('tasks');
   closeModal('modal-task');
   renderAll();
-  showToast('Tarea guardada');
+  sndSuccess(); showToast('Tarea guardada');
 }
 function toggleTask(id){
   const t = DB.tasks.find(x=>x.id===id);
-  if(t){ t.done = !t.done; persist('tasks'); renderAll(); }
+  if(t){ t.done = !t.done; persist('tasks'); renderAll(); t.done ? sndSuccess() : sndToggleOff(); }
 }
 function deleteTask(id){
   DB.tasks = DB.tasks.filter(x=>x.id!==id);
-  persist('tasks'); renderAll();
+  persist('tasks'); renderAll(); sndDelete();
 }
 
 /* ---------- NOTE MODAL ---------- */
@@ -1000,11 +1279,11 @@ function saveNote(){
   persist('notes');
   closeModal('modal-note');
   renderAll();
-  showToast('Nota guardada');
+  sndSuccess(); showToast('Nota guardada');
 }
 function deleteNote(id){
   DB.notes = DB.notes.filter(x=>x.id!==id);
-  persist('notes'); renderAll();
+  persist('notes'); renderAll(); sndDelete();
 }
 
 /* ---------- TX (MONEY) MODAL ---------- */
@@ -1036,11 +1315,11 @@ function saveTx(){
   persist('tx');
   closeModal('modal-tx');
   renderAll();
-  showToast(type==='income' ? 'Ingreso registrado' : 'Gasto registrado');
+  sndSuccess(); showToast(type==='income' ? 'Ingreso registrado' : 'Gasto registrado');
 }
 function deleteTx(id){
   DB.tx = DB.tx.filter(x=>x.id!==id);
-  persist('tx'); renderAll();
+  persist('tx'); renderAll(); sndDelete();
 }
 
 /* ---------- CATEGORY MANAGER ---------- */
@@ -1114,7 +1393,7 @@ function saveGoal(){
   persist('goals');
   closeModal('modal-goal');
   renderAll();
-  showToast('Meta creada');
+  sndSuccess(); showToast('Meta creada');
 }
 function addToGoal(id){
   const g = DB.goals.find(x=>x.id===id);
@@ -1185,18 +1464,20 @@ function saveHabit(){
   closeModal('modal-habit');
   renderAll();
   scheduleHabitReminders();
-  showToast('Hábito creado');
+  sndSuccess(); showToast('Hábito creado');
 }
 function deleteHabit(id){
   DB.habits = DB.habits.filter(x=>x.id!==id);
-  persist('habits'); renderAll();
+  persist('habits'); renderAll(); sndDelete();
 }
 function toggleHabitDay(habitId, dateISO){
   const h = DB.habits.find(x=>x.id===habitId);
   if(!h) return;
+  const turningOn = !h.log[dateISO];
   if(h.log[dateISO]) delete h.log[dateISO];
   else h.log[dateISO] = true;
   persist('habits'); renderAll();
+  turningOn ? sndSuccess() : sndToggleOff();
 }
 
 /* ============================================================
@@ -1749,12 +2030,16 @@ function importData(event){
       DB.goals = data.goals || [];
       DB.habits = data.habits || [];
       DB.customCats = data.customCats || {expense:[], income:[]};
-      await Promise.all(Object.keys(SKEY).map(k=>storageSet(SKEY[k], DB[k])));
+      await fb.setDoc(userDocRef(), {
+        notes: DB.notes, tasks: DB.tasks, tx: DB.tx,
+        goals: DB.goals, habits: DB.habits, customCats: DB.customCats
+      }, { merge: true });
       renderCalendar();
       renderAll();
       scheduleHabitReminders();
       showToast('Respaldo importado correctamente');
     }catch(err){
+      console.error(err);
       showToast('No se pudo leer ese archivo');
     }
     event.target.value = '';
@@ -1767,16 +2052,153 @@ document.getElementById('modal-settings') && document.getElementById('modal-sett
 });
 
 /* ============================================================
-   INIT
+   AUTH UI LOGIC
    ============================================================ */
-(async function init(){
+let authMode = 'login'; // 'login' | 'register'
+
+function toggleAuthMode(){
+  authMode = authMode === 'login' ? 'register' : 'login';
+  const isRegister = authMode === 'register';
+  document.getElementById('auth-title').textContent = isRegister ? 'Crea tu cuenta' : 'Bienvenido a Pulso';
+  document.getElementById('auth-subtitle').textContent = isRegister ? 'Tus datos se guardan en la nube, en tu cuenta' : 'Inicia sesión para ver tus datos';
+  document.getElementById('auth-name-field').style.display = isRegister ? 'block' : 'none';
+  document.getElementById('auth-forgot-link').style.display = isRegister ? 'none' : 'block';
+  document.getElementById('auth-submit-btn').textContent = isRegister ? 'Crear cuenta' : 'Iniciar sesión';
+  document.getElementById('auth-switch-text').textContent = isRegister ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
+  document.getElementById('auth-switch-link').textContent = isRegister ? 'Inicia sesión' : 'Regístrate';
+  hideAuthError();
+}
+
+function showAuthError(msg){
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideAuthError(){
+  document.getElementById('auth-error').classList.remove('show');
+}
+
+const FIREBASE_ERROR_MESSAGES = {
+  'auth/invalid-email': 'Ese correo no parece válido.',
+  'auth/user-not-found': 'No encontramos una cuenta con ese correo.',
+  'auth/wrong-password': 'Contraseña incorrecta.',
+  'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+  'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
+  'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+  'auth/too-many-requests': 'Demasiados intentos. Espera un momento e intenta de nuevo.',
+  'auth/network-request-failed': 'Sin conexión. Revisa tu internet.'
+};
+function friendlyAuthError(err){
+  return FIREBASE_ERROR_MESSAGES[err.code] || 'Algo salió mal. Intenta de nuevo.';
+}
+
+async function handleAuthSubmit(){
+  hideAuthError();
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const name = document.getElementById('auth-name').value.trim();
+
+  if(!email || !password){ showAuthError('Completa correo y contraseña.'); return; }
+  if(authMode === 'register' && !name){ showAuthError('Dinos cómo te llamas.'); return; }
+
+  const btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Un momento...';
+
+  try{
+    if(authMode === 'register'){
+      const cred = await fb.createUserWithEmailAndPassword(fb.auth, email, password);
+      await fb.updateProfile(cred.user, { displayName: name });
+    }else{
+      await fb.signInWithEmailAndPassword(fb.auth, email, password);
+    }
+    // onAuthStateChanged will take it from here
+  }catch(err){
+    showAuthError(friendlyAuthError(err));
+    btn.disabled = false;
+    btn.textContent = authMode === 'register' ? 'Crear cuenta' : 'Iniciar sesión';
+  }
+}
+
+async function handlePasswordReset(){
+  const email = document.getElementById('auth-email').value.trim();
+  if(!email){ showAuthError('Escribe tu correo arriba primero, luego toca el enlace.'); return; }
+  try{
+    await fb.sendPasswordResetEmail(fb.auth, email);
+    hideAuthError();
+    showToast('Te enviamos un correo para restablecer tu contraseña');
+  }catch(err){
+    showAuthError(friendlyAuthError(err));
+  }
+}
+
+function handleLogout(){
+  if(!confirm('¿Cerrar sesión?')) return;
+  clearInterval(window._reminderInterval);
+  fb.signOut(fb.auth);
+}
+
+function showAuthScreen(){
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('main-app').style.display = 'none';
+}
+function showMainApp(){
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('main-app').style.display = 'flex';
+}
+
+async function onUserLoggedIn(user){
+  currentUser = user;
+  document.getElementById('account-name-label').textContent = user.displayName || 'Tu cuenta';
+  document.getElementById('account-email-label').textContent = user.email || '';
+  const initial = (user.displayName || user.email || '?').trim().charAt(0).toUpperCase();
+  document.getElementById('user-badge').textContent = initial;
+
   await loadAll();
-  renderCalendar(); // also renders agenda list
+  showMainApp();
+  renderCalendar();
   renderAll();
   updateNotifPermissionNote();
   updateSettingsNotifStatus();
   scheduleHabitReminders();
-})();
+
+  soundsEnabled = UIPREFS.soundsEnabled ?? true;
+  document.getElementById('sounds-toggle').checked = soundsEnabled;
+
+  if(UIPREFS.cardsExpanded){
+    document.getElementById('grid-cards-section').classList.add('expanded');
+    document.getElementById('brand-toggle').classList.remove('collapsed');
+  }else{
+    document.getElementById('brand-toggle').classList.add('collapsed');
+  }
+}
+
+function onUserLoggedOut(){
+  currentUser = null;
+  DB = { notes: [], tasks: [], tx: [], goals: [], habits: [], customCats: {expense:[], income:[]} };
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
+  document.getElementById('auth-name').value = '';
+  document.getElementById('auth-submit-btn').disabled = false;
+  document.getElementById('auth-submit-btn').textContent = authMode === 'register' ? 'Crear cuenta' : 'Iniciar sesión';
+  showAuthScreen();
+}
+
+/* ============================================================
+   INIT — wait for the Firebase module script, then watch auth
+   ============================================================ */
+function bootFirebaseAuthWatcher(){
+  fb = window.__firebase;
+  fb.onAuthStateChanged(fb.auth, (user) => {
+    if(user) onUserLoggedIn(user);
+    else onUserLoggedOut();
+  });
+}
+if(window.__firebase){
+  bootFirebaseAuthWatcher();
+}else{
+  window.addEventListener('firebase-ready', bootFirebaseAuthWatcher, { once: true });
+}
 </script>
 </body>
 </html>

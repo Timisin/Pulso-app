@@ -1,0 +1,21 @@
+// REGLAS DE SEGURIDAD DE FIRESTORE PARA PULSO
+// ============================================
+// Cómo aplicarlas:
+// 1. Ve a https://console.firebase.google.com → tu proyecto
+// 2. Build → Firestore Database → pestaña "Rules"
+// 3. Borra lo que haya y pega exactamente esto
+// 4. Click en "Publish"
+//
+// Qué hacen: cada usuario solo puede leer y escribir su propio
+// documento (el que tiene su mismo uid como ID). Nadie puede ver
+// ni modificar los datos de otra persona, ni siquiera estando
+// autenticado.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
